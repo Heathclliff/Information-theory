@@ -46,7 +46,9 @@ var
   KeyBits: TKeyBits;
   vector: TKeysVector;
   Key:string;
-  Keys:array[1..6,1..8] of string[25];
+  Keys:array[1..9,1..6] of string[25];
+  BitsStr:ansistring;
+  AddedBits:byte;
 
 implementation
 
@@ -87,6 +89,28 @@ end;
 procedure TMainForm.exitClick(Sender: TObject);
 begin
   Halt;
+end;
+
+procedure getBitsStr();
+var i,temp,j:integer;
+    strbit:string[8];
+begin
+  i:=1;
+  while i<=length(str) do
+    begin
+    strbit:='';
+    temp:=ord(str[i]);
+    while temp>0 do
+      begin
+      strbit:=strbit+inttostr(temp mod 2);
+      temp:=temp div 2;
+      end;
+    for j:=length(strbit) to 8 do
+      strbit:=strbit+'0';
+    for j:=8 downto 1 do
+    Bitsstr:=Bitsstr+strbit[j];
+    inc(i);
+    end;
 end;
 
 procedure TMainForm.openClick(Sender: TObject);
@@ -139,27 +163,45 @@ var i,j,z:integer;
     keystr:string[128];
 begin
   for i:=1 to 128 do
-    keystr:=keystr+key[i];
-  for i:=1 to 8 do
+    keystr:=keystr+inttostr(key[i]);
+  for i:=1 to 9 do
     for j:=1 to 6 do
-      
+      begin
+      Keys[i,j]:=copy(keystr,1,25);
+      delete(keystr,1,25);
+      insert(keys[i,j],keystr,104);
+      end;
+end;
 
+procedure CheckAddedBits();
+var i:integer;
+begin
+if (length(bitsStr) mod 64<>0) then
+    begin
+    AddedBits:=64-length(bitsStr) mod 64;
+    for i:=1 to addedbits do
+      bitsStr:=BitsStr+'0';
+    end
+    else AddedBits:=0;
 end;
 
 procedure Encryption();
 begin
-Key:=keyedit.text;
+Key:=MainForm.keyedit.text;
 TransformateKey(key);
 //GetKeysVector(KeyBits);
 GetAllKeys(KeyBits);
+getbitsstr();
+CheckAddedBits();
 
 end;
 
 procedure decryption();
 begin
-Key:=keyedit.text;
+Key:=MainForm.keyedit.text;
 TransformateKey(key);
 //GetKeysVector(KeyBits);
+GetAllKeys(KeyBits);
 
 end;
 
@@ -168,7 +210,7 @@ begin
 if (str<>'') then
   if length(keyedit.Text)=32 then
     begin
-
+      Encryption();
     end
   else showmessage('Введите ключ длиной 32 символа')
   else showmessage('Выберите файл для работы');
