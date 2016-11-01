@@ -46,7 +46,7 @@ var
   KeyBits: TKeyBits;
   vector: TKeysVector;
   Key:string;
-  Keys:array[1..9,1..6] of string[25];
+  Keys:array[1..9,1..6] of string[26];
   BitsStr:ansistring;
   AddedBits:byte;
 
@@ -185,16 +185,6 @@ if (length(bitsStr) mod 64<>0) then
     else AddedBits:=0;
 end;
 
-procedure Encryption();
-begin
-Key:=MainForm.keyedit.text;
-TransformateKey(key);
-//GetKeysVector(KeyBits);
-GetAllKeys(KeyBits);
-getbitsstr();
-CheckAddedBits();
-
-end;
 
 function perevod(number:string):integer;
 var temp:char;
@@ -212,10 +202,13 @@ begin
   if result=0 then result:=65536;
 end;
 
+
 function pobitXOR(a,b:integer):integer;
 var semiresult:string;
     temp:char;
+    k:integer;
 begin
+  result:=0;
  while (a>0) and (b>0) do
   begin
    semiresult:=inttostr((a mod 2) xor (b mod 2));
@@ -227,18 +220,37 @@ begin
  k:=1;
  while semiresult<>'' do
   begin
-  temp:=number[length(number)];
-  delete(number,length(number),1);
+  temp:=semiresult[1];
+  delete(semiresult,1,1);
   result:=result+strtoint(temp)*k;
   k:=k*2;
   end;
 end;
 
+function outresult(perem:integer):string;
+var
+  i:integer;
+  begin
+  I:=16;
+  while perem>0 do
+    begin
+    if perem mod 2=0 then result[i]:='0'
+    else result[i]:='1';
+    dec(i);
+    perem:=perem div 2;
+    end;
+  while i>=1 do
+  begin
+  result[i]:='0';
+  dec(i);
+  end;
+  end;
 
-procedure MainSifr();
+procedure MainShifr();
 var D1,D2,d3,d4:string[16];
-    a,b,c,d,e,f:integer;
-    i,temp,temp2:integer;
+    semiresult:string[64];
+    a,b,c,d,e,f,j,temp,temp2:integer;
+    i:integer;
 begin
 while Bitsstr<>'' do
   begin
@@ -253,49 +265,79 @@ while Bitsstr<>'' do
   for i:=1 to 8 do
     begin
     j:=1;
-    a:=perevod(d1) xor perevod(k[i,j]);
+    a:=perevod(d1) xor perevod(keys[i,j]);
     if (a=65536) then a:=0;
     a:=a mod 65537;
     inc(j);
-    b:=perevod(d2)+perevod(k[i,j]);
+    b:=perevod(d2)+perevod(keys[i,j]);
     b:=b mod 65536;
     inc(j);
-    c:=perevod(d3)+perevod(k[i,j]);
+    c:=perevod(d3)+perevod(keys[i,j]);
     if (c=65536) then a:=0;
     c:=c mod 65536;
     inc(j);
-    d:=perevod(d4) xor perevod (k[i,j]);
+    d:=perevod(d4) xor perevod (keys[i,j]);
     d:=d mod 65537;
     inc(j);
     e:=pobitXor(a,c);
     f:=pobitXor(b,d);
     if e=0 then e:=65536;
-    if k[i,5]=0 then k[i,5]:=65536;
-    if k[i,6]=0 then k[i,6]:=65536;
-    temp:=e xor k[i,5];
+    if perevod(keys[i,5])=0 then keys[i,5]:='10000000000000000000000000';
+    if perevod(keys[i,6])=0 then keys[i,6]:='10000000000000000000000000';
+    temp:=e xor perevod(keys[i,5]);
     temp:=temp mod 65537;
     temp:=temp+f;
     if temp=0 then temp:=65536;
-    temp:=temp xor k[i,6];
+    temp:=temp xor perevod(keys[i,6]);
     temp:=temp mod 65537;
-    temp2:=e xor k[i,5];
+    temp2:=e xor perevod(keys[i,5]);
     temp2:=temp2 mod 65537;
     temp2:=temp2+temp;
-    d1:=pobitXor(a,temp);
-    d2:=pobitXor(c,temp);
-    d3:=pobitXor(b,temp2);
-    d4:=pobitXor(d,temp2);
+    temp2:=temp mod 65536;
+    d1:=outresult(pobitXor(a,temp));
+    d2:=outresult(pobitXor(c,temp));
+    d3:=outresult(pobitXor(b,temp2));
+    d4:=outresult(pobitXor(d,temp2));
     end;
+  end;
+  temp:=perevod(d1) xor perevod(keys[9,1]);
+  temp:=temp mod 65537;
+  if temp=65537 then temp:=0;
+  d1:=outresult(temp);
+
+  temp:=perevod(d4) xor perevod(keys[9,4]);
+  temp:=temp mod 65537;
+  if temp=65537 then temp:=0;
+  d4:=outresult(temp);
+
+  temp:=perevod(d3)+perevod(keys[9,2]);
+  temp:=temp mod 65536;
+  d2:=outresult(temp);
+
+  temp:=perevod(d2)+perevod(keys[9,3]);
+  temp:=temp mod 65536;
+  d3:=outresult(temp);
+
+
 
 end;
 
 
+procedure Encryption();
+begin
+Key:=MainForm.keyedit.text;
+TransformateKey(key);
+GetAllKeys(KeyBits);
+getbitsstr();
+CheckAddedBits();
+mainshifr();
+
+end;
 
 procedure decryption();
 begin
 Key:=MainForm.keyedit.text;
 TransformateKey(key);
-//GetKeysVector(KeyBits);
 GetAllKeys(KeyBits);
 mainshifr();
 end;

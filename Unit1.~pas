@@ -46,8 +46,9 @@ var
   KeyBits: TKeyBits;
   vector: TKeysVector;
   Key:string;
-  Keys:array[1..9,1..6] of string[25];
+  Keys:array[1..9,1..6] of string[26];
   BitsStr:ansistring;
+  AddedBits:byte;
 
 implementation
 
@@ -91,12 +92,24 @@ begin
 end;
 
 procedure getBitsStr();
-var i:integer;
+var i,temp,j:integer;
+    strbit:string[8];
 begin
   i:=1;
-  while i<=length(str);
+  while i<=length(str) do
     begin
-
+    strbit:='';
+    temp:=ord(str[i]);
+    while temp>0 do
+      begin
+      strbit:=strbit+inttostr(temp mod 2);
+      temp:=temp div 2;
+      end;
+    for j:=length(strbit) to 8 do
+      strbit:=strbit+'0';
+    for j:=8 downto 1 do
+    Bitsstr:=Bitsstr+strbit[j];
+    inc(i);
     end;
 end;
 
@@ -146,7 +159,7 @@ end;
 
 
 procedure GetAllKeys(Key:TKeyBits);
-var i,j,z:integer;
+var i,j:integer;
     keystr:string[128];
 begin
   for i:=1 to 128 do
@@ -158,8 +171,18 @@ begin
       delete(keystr,1,25);
       insert(keys[i,j],keystr,104);
       end;
+end;
 
-
+procedure CheckAddedBits();
+var i:integer;
+begin
+if (length(bitsStr) mod 64<>0) then
+    begin
+    AddedBits:=64-length(bitsStr) mod 64;
+    for i:=1 to addedbits do
+      bitsStr:=BitsStr+'0';
+    end
+    else AddedBits:=0;
 end;
 
 procedure Encryption();
@@ -168,8 +191,111 @@ Key:=MainForm.keyedit.text;
 TransformateKey(key);
 //GetKeysVector(KeyBits);
 GetAllKeys(KeyBits);
+getbitsstr();
+CheckAddedBits();
 
 end;
+
+function perevod(number:string):integer;
+var temp:char;
+    k:integer;
+begin
+ result:=0;
+ k:=1;
+ while number<>'' do
+  begin
+  temp:=number[length(number)];
+  delete(number,length(number),1);
+  result:=result+strtoint(temp)*k;
+  k:=k*2;
+  end;
+  if result=0 then result:=65536;
+end;
+
+
+function pobitXOR(a,b:integer):integer;
+var semiresult:string;
+    temp:char;
+    k:integer;
+begin
+  result:=0;
+ while (a>0) and (b>0) do
+  begin
+   semiresult:=inttostr((a mod 2) xor (b mod 2));
+   a:=a div 10;
+   b:=b div 10;
+  end;
+ while length(semiresult)<8 do
+  semiresult:=semiresult+'0';
+ k:=1;
+ while semiresult<>'' do
+  begin
+  temp:=semiresult[1];
+  delete(semiresult,1,1);
+  result:=result+strtoint(temp)*k;
+  k:=k*2;
+  end;
+end;
+
+function outresult(perem:integer;):string[16];
+
+procedure MainShifr();
+var D1,D2,d3,d4:string[16];
+    a,b,c,d,e,f,j,temp,temp2:integer;
+    i:integer;
+begin
+while Bitsstr<>'' do
+  begin
+  d1:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  d2:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  d3:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  d4:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  for i:=1 to 8 do
+    begin
+    j:=1;
+    a:=perevod(d1) xor perevod(keys[i,j]);
+    if (a=65536) then a:=0;
+    a:=a mod 65537;
+    inc(j);
+    b:=perevod(d2)+perevod(keys[i,j]);
+    b:=b mod 65536;
+    inc(j);
+    c:=perevod(d3)+perevod(keys[i,j]);
+    if (c=65536) then a:=0;
+    c:=c mod 65536;
+    inc(j);
+    d:=perevod(d4) xor perevod (keys[i,j]);
+    d:=d mod 65537;
+    inc(j);
+    e:=pobitXor(a,c);
+    f:=pobitXor(b,d);
+    if e=0 then e:=65536;
+    if perevod(keys[i,5])=0 then keys[i,5]:='10000000000000000000000000';
+    if perevod(keys[i,6])=0 then keys[i,6]:='10000000000000000000000000';
+    temp:=e xor perevod(keys[i,5]);
+    temp:=temp mod 65537;
+    temp:=temp+f;
+    if temp=0 then temp:=65536;
+    temp:=temp xor perevod(keys[i,6]);
+    temp:=temp mod 65537;
+    temp2:=e xor perevod(keys[i,5]);
+    temp2:=temp2 mod 65537;
+    temp2:=temp2+temp;
+    d1:=pobitXor(a,temp);
+    d2:=pobitXor(c,temp);
+    d3:=pobitXor(b,temp2);
+    d4:=pobitXor(d,temp2);
+    end;
+  end;
+  //d1:=d1 xor
+
+end;
+
+
 
 procedure decryption();
 begin
@@ -177,7 +303,7 @@ Key:=MainForm.keyedit.text;
 TransformateKey(key);
 //GetKeysVector(KeyBits);
 GetAllKeys(KeyBits);
-
+mainshifr();
 end;
 
 procedure TMainForm.EncryptClick(Sender: TObject);
@@ -185,7 +311,7 @@ begin
 if (str<>'') then
   if length(keyedit.Text)=32 then
     begin
-
+      Encryption();
     end
   else showmessage('Введите ключ длиной 32 символа')
   else showmessage('Выберите файл для работы');
