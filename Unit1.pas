@@ -41,7 +41,7 @@ type
 
 var
   MainForm: TMainForm;
-  str,firststr:ansistring;
+  str,firststr,outputresult:ansistring;
   FName:string;
   KeyBits: TKeyBits;
   vector: TKeysVector;
@@ -162,6 +162,7 @@ procedure GetAllKeys(Key:TKeyBits);
 var i,j:integer;
     keystr:string[128];
 begin
+keystr:='';
   for i:=1 to 128 do
     keystr:=keystr+inttostr(key[i]);
   for i:=1 to 9 do
@@ -211,7 +212,7 @@ begin
   result:=0;
  while (a>0) and (b>0) do
   begin
-   semiresult:=inttostr((a mod 2) xor (b mod 2));
+   semiresult:=semiresult+inttostr((a mod 2) xor (b mod 2));
    a:=a div 10;
    b:=b div 10;
   end;
@@ -232,6 +233,7 @@ var
   i:integer;
   begin
   I:=16;
+  result:='11111111';
   while perem>0 do
     begin
     if perem mod 2=0 then result[i]:='0'
@@ -245,6 +247,19 @@ var
   dec(i);
   end;
   end;
+
+function perevodintochar(str:string):string;
+var temp:string;
+    resultord:integer;
+begin
+while str<>'' do
+  begin
+  temp:=copy(str,1,4);
+  delete(str,1,4);
+  resultord:=strtoint(temp[1])*8+strtoint(temp[2])*4+strtoint(temp[3])*2+strtoint(temp[4])*1;
+  result:=result+chr(resultord);
+  end;
+end;
 
 procedure MainShifr();
 var D1,D2,d3,d4:string[16];
@@ -273,7 +288,7 @@ while Bitsstr<>'' do
     b:=b mod 65536;
     inc(j);
     c:=perevod(d3)+perevod(keys[i,j]);
-    if (c=65536) then a:=0;
+    if (c=65536) then c:=0;
     c:=c mod 65536;
     inc(j);
     d:=perevod(d4) xor perevod (keys[i,j]);
@@ -299,7 +314,6 @@ while Bitsstr<>'' do
     d3:=outresult(pobitXor(b,temp2));
     d4:=outresult(pobitXor(d,temp2));
     end;
-  end;
   temp:=perevod(d1) xor perevod(keys[9,1]);
   temp:=temp mod 65537;
   if temp=65537 then temp:=0;
@@ -317,11 +331,20 @@ while Bitsstr<>'' do
   temp:=perevod(d2)+perevod(keys[9,3]);
   temp:=temp mod 65536;
   d3:=outresult(temp);
-
-
-
+  semiresult:=d1+d2+d3+d4;
+  outputresult:=outputresult+perevodintochar(semiresult);
+  end;
 end;
 
+procedure outmemo();
+var f:textfile;
+begin
+fname:=fname+'cip';
+    assignfile(f,FName);
+    rewrite(f);
+    writeln(f,outputresult);
+    closefile(f);
+end;
 
 procedure Encryption();
 begin
@@ -331,7 +354,7 @@ GetAllKeys(KeyBits);
 getbitsstr();
 CheckAddedBits();
 mainshifr();
-
+outmemo();
 end;
 
 procedure decryption();
