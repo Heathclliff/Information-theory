@@ -7,7 +7,7 @@ uses
   Dialogs, Menus, StdCtrls;
 
 type
-  TMainForm = class(TForm)
+  TForm1 = class(TForm)
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     MainMenu: TMainMenu;
@@ -31,7 +31,7 @@ type
   end;
 
 var
-  MainForm: TMainForm;
+  Form1: TForm1;
   str,firststr:ansistring;
   FName:string;
 
@@ -39,12 +39,12 @@ implementation
 
 {$R *.dfm}
 
-procedure TMainForm.exitClick(Sender: TObject);
+procedure TForm1.exitClick(Sender: TObject);
 begin
   Halt;
 end;
 
-procedure TMainForm.openClick(Sender: TObject);
+procedure TForm1.openClick(Sender: TObject);
  var f:textFile;
    begin
    if OpenDialog.Execute then
@@ -69,7 +69,7 @@ procedure TMainForm.openClick(Sender: TObject);
 
 
 
-procedure TMainForm.SaveClick(Sender: TObject);
+procedure TForm1.SaveClick(Sender: TObject);
 var  f:textFile;
 begin
     if (str<>'') and (fname<>'') then
