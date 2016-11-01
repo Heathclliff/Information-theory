@@ -159,7 +159,7 @@ end;
 
 
 procedure GetAllKeys(Key:TKeyBits);
-var i,j,z:integer;
+var i,j:integer;
     keystr:string[128];
 begin
   for i:=1 to 128 do
@@ -196,13 +196,108 @@ CheckAddedBits();
 
 end;
 
+function perevod(number:string):integer;
+var temp:char;
+    k:integer;
+begin
+ result:=0;
+ k:=1;
+ while number<>'' do
+  begin
+  temp:=number[length(number)];
+  delete(number,length(number),1);
+  result:=result+strtoint(temp)*k;
+  k:=k*2;
+  end;
+  if result=0 then result:=65536;
+end;
+
+function pobitXOR(a,b:integer):integer;
+var semiresult:string;
+    temp:char;
+begin
+ while (a>0) and (b>0) do
+  begin
+   semiresult:=inttostr((a mod 2) xor (b mod 2));
+   a:=a div 10;
+   b:=b div 10;
+  end;
+ while length(semiresult)<8 do
+  semiresult:=semiresult+'0';
+ k:=1;
+ while semiresult<>'' do
+  begin
+  temp:=number[length(number)];
+  delete(number,length(number),1);
+  result:=result+strtoint(temp)*k;
+  k:=k*2;
+  end;
+end;
+
+
+procedure MainSifr();
+var D1,D2,d3,d4:string[16];
+    a,b,c,d,e,f:integer;
+    i,temp,temp2:integer;
+begin
+while Bitsstr<>'' do
+  begin
+  d1:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  d2:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  d3:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  d4:=copy(bitsstr,1,16);
+  delete(bitsstr,1,16);
+  for i:=1 to 8 do
+    begin
+    j:=1;
+    a:=perevod(d1) xor perevod(k[i,j]);
+    if (a=65536) then a:=0;
+    a:=a mod 65537;
+    inc(j);
+    b:=perevod(d2)+perevod(k[i,j]);
+    b:=b mod 65536;
+    inc(j);
+    c:=perevod(d3)+perevod(k[i,j]);
+    if (c=65536) then a:=0;
+    c:=c mod 65536;
+    inc(j);
+    d:=perevod(d4) xor perevod (k[i,j]);
+    d:=d mod 65537;
+    inc(j);
+    e:=pobitXor(a,c);
+    f:=pobitXor(b,d);
+    if e=0 then e:=65536;
+    if k[i,5]=0 then k[i,5]:=65536;
+    if k[i,6]=0 then k[i,6]:=65536;
+    temp:=e xor k[i,5];
+    temp:=temp mod 65537;
+    temp:=temp+f;
+    if temp=0 then temp:=65536;
+    temp:=temp xor k[i,6];
+    temp:=temp mod 65537;
+    temp2:=e xor k[i,5];
+    temp2:=temp2 mod 65537;
+    temp2:=temp2+temp;
+    d1:=pobitXor(a,temp);
+    d2:=pobitXor(c,temp);
+    d3:=pobitXor(b,temp2);
+    d4:=pobitXor(d,temp2);
+    end;
+
+end;
+
+
+
 procedure decryption();
 begin
 Key:=MainForm.keyedit.text;
 TransformateKey(key);
 //GetKeysVector(KeyBits);
 GetAllKeys(KeyBits);
-
+mainshifr();
 end;
 
 procedure TMainForm.EncryptClick(Sender: TObject);
