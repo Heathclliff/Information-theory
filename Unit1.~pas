@@ -7,7 +7,7 @@ uses
   Dialogs, Menus, StdCtrls;
 
 type
-  TForm1 = class(TForm)
+  TMainForm = class(TForm)
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     MainMenu: TMainMenu;
@@ -21,9 +21,16 @@ type
     lastfiletext: TLabel;
     KeeText: TLabel;
     keyEdit: TEdit;
+    Encrypt: TButton;
+    Decryption: TButton;
+    Step: TButton;
     procedure exitClick(Sender: TObject);
     procedure openClick(Sender: TObject);
     procedure SaveClick(Sender: TObject);
+    procedure keyEditKeyPress(Sender: TObject; var Key: Char);
+    procedure EncryptClick(Sender: TObject);
+    procedure StepClick(Sender: TObject);
+    procedure DecryptionClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -31,7 +38,7 @@ type
   end;
 
 var
-  Form1: TForm1;
+  MainForm: TMainForm;
   str,firststr:ansistring;
   FName:string;
 
@@ -39,12 +46,12 @@ implementation
 
 {$R *.dfm}
 
-procedure TForm1.exitClick(Sender: TObject);
+procedure TMainForm.exitClick(Sender: TObject);
 begin
   Halt;
 end;
 
-procedure TForm1.openClick(Sender: TObject);
+procedure TMainForm.openClick(Sender: TObject);
  var f:textFile;
    begin
    if OpenDialog.Execute then
@@ -69,7 +76,7 @@ procedure TForm1.openClick(Sender: TObject);
 
 
 
-procedure TForm1.SaveClick(Sender: TObject);
+procedure TMainForm.SaveClick(Sender: TObject);
 var  f:textFile;
 begin
     if (str<>'') and (fname<>'') then
@@ -82,5 +89,44 @@ begin
     end
     else showmessage('Вы пытаетесь сохранить пустой файл');
     end;
+procedure TMainForm.keyEditKeyPress(Sender: TObject; var Key: Char);
+const allowed: set of Char = ['0'..'9', 'A', 'B', 'C', 'D', 'E', 'F', #8];
+begin
+  if not (key in allowed) then key := #0;
+end;
+
+procedure TMainForm.EncryptClick(Sender: TObject);
+begin
+if (str<>'') then
+  if length(keyedit.Text)=32 then
+    begin
+
+    end
+  else showmessage('Введите ключ длиной 32 символа')
+  else showmessage('Выберите файл для работы');
+end;
+
+procedure TMainForm.StepClick(Sender: TObject);
+begin
+if (str<>'') then
+if length(keyedit.Text)=32 then
+    begin
+
+    end
+  else showmessage('Введите ключ длиной 32 символа')
+  else showmessage('Выберите файл для работы');
+end;
+
+procedure TMainForm.DecryptionClick(Sender: TObject);
+begin
+if (str<>'') then
+  if length(keyedit.Text)=32 then
+    begin
+
+    end
+    else showmessage('Введите ключ длиной 32 символа')
+  else showmessage('Выберите файл для работы');
+end;
+
 end.
  

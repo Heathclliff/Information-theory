@@ -58,6 +58,7 @@ object MainForm: TMainForm
     Top = 88
     Width = 305
     Height = 321
+    ScrollBars = ssVertical
     TabOrder = 0
   end
   object lastFileMemo: TMemo
@@ -65,6 +66,7 @@ object MainForm: TMainForm
     Top = 88
     Width = 321
     Height = 321
+    ScrollBars = ssVertical
     TabOrder = 1
   end
   object keyEdit: TEdit
@@ -80,6 +82,34 @@ object MainForm: TMainForm
     MaxLength = 32
     ParentFont = False
     TabOrder = 2
+    OnKeyPress = keyEditKeyPress
+  end
+  object Encrypt: TButton
+    Left = 344
+    Top = 176
+    Width = 217
+    Height = 57
+    Caption = #1064#1080#1092#1088#1086#1074#1072#1085#1080#1077
+    TabOrder = 3
+    OnClick = EncryptClick
+  end
+  object Decryption: TButton
+    Left = 344
+    Top = 312
+    Width = 217
+    Height = 57
+    Caption = #1044#1077#1096#1080#1092#1088#1086#1074#1072#1085#1080#1077
+    TabOrder = 4
+    OnClick = DecryptionClick
+  end
+  object Step: TButton
+    Left = 344
+    Top = 240
+    Width = 217
+    Height = 65
+    Caption = #1064#1072#1075' '#1064#1080#1092#1088#1086#1074#1072#1085#1080#1103
+    TabOrder = 5
+    OnClick = StepClick
   end
   object OpenDialog: TOpenDialog
     Left = 32
