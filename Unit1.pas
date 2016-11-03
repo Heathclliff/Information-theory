@@ -13,7 +13,6 @@ type
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     MainMenu: TMainMenu;
-    N1: TMenuItem;
     open: TMenuItem;
     Save: TMenuItem;
     exit: TMenuItem;
@@ -26,6 +25,7 @@ type
     Encrypt: TButton;
     Decryption: TButton;
     Step: TButton;
+    options: TMenuItem;
     procedure exitClick(Sender: TObject);
     procedure openClick(Sender: TObject);
     procedure SaveClick(Sender: TObject);
@@ -49,7 +49,7 @@ var
   Keys:array[1..9,1..6] of string[26];
   BitsStr:ansistring;
   AddedBits:byte;
-
+  flag:boolean;
 implementation
 
 {$R *.dfm}
@@ -96,9 +96,9 @@ var i,temp,j:integer;
     strbit:string[8];
 begin
   i:=1;
+  BitsStr:='';
   while i<=length(str) do
     begin
-    strbit:='';
     temp:=ord(str[i]);
     while temp>0 do
       begin
@@ -111,6 +111,32 @@ begin
     Bitsstr:=Bitsstr+strbit[j];
     inc(i);
     end;
+end;
+
+procedure getBitsStr2();
+ var f:File of byte;
+      b:byte;
+      strbit:string;
+      j:integer;
+begin
+assignfile(f,FName);
+reset(f);
+while not(eof(f)) do
+        begin
+        read(f,b);
+        strbit:='';
+          while b>0 do
+            begin
+            strbit:=strbit+inttostr(b mod 2);
+            b:=b div 2;
+            end;
+          for j:=length(strbit) to 8 do
+            strbit:=strbit+'0';
+          for j:=8 downto 1 do
+            Bitsstr:=Bitsstr+strbit[j];
+        end;
+closefile(f);
+showmessage(inttostr(length(bitsstr)));
 end;
 
 procedure TMainForm.openClick(Sender: TObject);
@@ -136,18 +162,19 @@ procedure TMainForm.openClick(Sender: TObject);
       ShowMessage('Выберите непустой файл');
       end;
 
-
-
 procedure TMainForm.SaveClick(Sender: TObject);
 var  f:textFile;
 begin
     if (str<>'') and (fname<>'') then
       begin
-    fname:=fname+'cip';
+      if saveDialog.Execute then
+    begin
+    FName := SaveDialog.FileName;
     assignfile(f,FName);
     rewrite(f);
-    writeln(f,str);   //пока что сохраняю str
+    writeln(f,outputresult);
     closefile(f);
+    end;
     end
     else showmessage('Вы пытаетесь сохранить пустой файл');
     end;
@@ -160,18 +187,88 @@ end;
 
 procedure GetAllKeys(Key:TKeyBits);
 var i,j:integer;
-    keystr:string[128];
+    keystr,tempstr:string[128];
 begin
 keystr:='';
   for i:=1 to 128 do
     keystr:=keystr+inttostr(key[i]);
-  for i:=1 to 9 do
+  {for i:=1 to 9 do
     for j:=1 to 6 do
       begin
       Keys[i,j]:=copy(keystr,1,25);
       delete(keystr,1,25);
       insert(keys[i,j],keystr,104);
-      end;
+      end;}
+  Keys[1,1]:=copy(keystr,1,16);
+  Keys[1,2]:=copy(keystr,17,16);
+  Keys[1,3]:=copy(keystr,33,16);
+  Keys[1,4]:=copy(keystr,49,16);
+  Keys[1,5]:=copy(keystr,65,16);
+  Keys[1,6]:=copy(keystr,81,16);
+  Keys[2,1]:=copy(keystr,97,16);
+  Keys[2,2]:=copy(keystr,113,16);
+  tempstr:=copy(keystr,1,25);
+  delete(keystr,1,25);
+  insert(tempstr,keystr,104);
+  Keys[2,3]:=copy(keystr,1,16);
+  Keys[2,4]:=copy(keystr,17,16);
+  Keys[2,5]:=copy(keystr,33,16);
+  Keys[2,6]:=copy(keystr,49,16);
+  Keys[3,1]:=copy(keystr,65,16);
+  Keys[3,2]:=copy(keystr,81,16);
+  Keys[3,3]:=copy(keystr,97,16);
+  Keys[3,4]:=copy(keystr,113,16);
+  tempstr:=copy(keystr,1,25);
+  delete(keystr,1,25);
+  insert(tempstr,keystr,104);
+  Keys[3,5]:=copy(keystr,1,16);
+  Keys[3,6]:=copy(keystr,17,16);
+  Keys[4,1]:=copy(keystr,33,16);
+  Keys[4,2]:=copy(keystr,49,16);
+  Keys[4,3]:=copy(keystr,65,16);
+  Keys[4,4]:=copy(keystr,81,16);
+  Keys[4,5]:=copy(keystr,97,16);
+  Keys[4,6]:=copy(keystr,113,16);
+  tempstr:=copy(keystr,1,25);
+  delete(keystr,1,25);
+  insert(tempstr,keystr,104);
+  Keys[5,1]:=copy(keystr,1,16);
+  Keys[5,2]:=copy(keystr,17,16);
+  Keys[5,3]:=copy(keystr,33,16);
+  Keys[5,4]:=copy(keystr,49,16);
+  Keys[5,5]:=copy(keystr,65,16);
+  Keys[5,6]:=copy(keystr,81,16);
+  Keys[6,1]:=copy(keystr,97,16);
+  Keys[6,2]:=copy(keystr,113,16);
+  tempstr:=copy(keystr,1,25);
+  delete(keystr,1,25);
+  insert(tempstr,keystr,104);
+  Keys[6,3]:=copy(keystr,1,16);
+  Keys[6,4]:=copy(keystr,17,16);
+  Keys[6,5]:=copy(keystr,33,16);
+  Keys[6,6]:=copy(keystr,49,16);
+  Keys[7,1]:=copy(keystr,65,16);
+  Keys[7,2]:=copy(keystr,81,16);
+  Keys[7,3]:=copy(keystr,97,16);
+  Keys[7,4]:=copy(keystr,113,16);
+  tempstr:=copy(keystr,1,25);
+  delete(keystr,1,25);
+  insert(tempstr,keystr,104);
+  Keys[7,5]:=copy(keystr,1,16);
+  Keys[7,6]:=copy(keystr,17,16);
+  Keys[8,1]:=copy(keystr,33,16);
+  Keys[8,2]:=copy(keystr,49,16);
+  Keys[8,3]:=copy(keystr,65,16);
+  Keys[8,4]:=copy(keystr,81,16);
+  Keys[8,5]:=copy(keystr,97,16);
+  Keys[8,6]:=copy(keystr,113,16);
+  tempstr:=copy(keystr,1,25);
+  delete(keystr,1,25);
+  insert(tempstr,keystr,104);
+  Keys[1,1]:=copy(keystr,1,16);
+  Keys[1,2]:=copy(keystr,17,16);
+  Keys[1,3]:=copy(keystr,33,16);
+  Keys[1,4]:=copy(keystr,49,16);
 end;
 
 procedure CheckAddedBits();
@@ -187,7 +284,7 @@ if (length(bitsStr) mod 64<>0) then
 end;
 
 
-function perevod(number:string):integer;
+function perevod(number:string):int64;
 var temp:char;
     k:integer;
 begin
@@ -204,13 +301,13 @@ begin
 end;
 
 
-function pobitXOR(a,b:integer):integer;
+function pobitXOR(a,b:int64):integer;
 var semiresult:string;
     temp:char;
     k:integer;
 begin
   result:=0;
- while (a>0) and (b>0) do
+ while (a>0) or (b>0) do
   begin
    semiresult:=semiresult+inttostr((a mod 2) xor (b mod 2));
    a:=a div 10;
@@ -233,7 +330,7 @@ var
   i:integer;
   begin
   I:=16;
-  result:='11111111';
+  result:='1111111111111111';
   while perem>0 do
     begin
     if perem mod 2=0 then result[i]:='0'
@@ -252,19 +349,48 @@ function perevodintochar(str:string):string;
 var temp:string;
     resultord:integer;
 begin
+result:='';
 while str<>'' do
   begin
-  temp:=copy(str,1,4);
-  delete(str,1,4);
-  resultord:=strtoint(temp[1])*8+strtoint(temp[2])*4+strtoint(temp[3])*2+strtoint(temp[4])*1;
+  temp:=copy(str,1,8);
+  delete(str,1,8);
+  resultord:=strtoint(temp[1])*128+strtoint(temp[2])*64+strtoint(temp[3])*32+strtoint(temp[4])*16+strtoint(temp[5])*8+strtoint(temp[6])*4+strtoint(temp[7])*2+strtoint(temp[8])*1;
   result:=result+chr(resultord);
   end;
 end;
 
+function mul(a, b :word):word; 
+var 
+tempA, tempB, res, module :Int64; 
+begin
+result:=0;
+module:=65536; 
+if a = 0 then
+tempA := MODULE
+else 
+tempA := a; 
+if b = 0 then 
+tempB := MODULE 
+else 
+tempB := b; 
+res := (tempA * tempB) mod (MODULE + 1); 
+if res = MODULE then 
+result := 0 
+else 
+result := word(res); 
+end;
+
+function  sum(a,b:word):word;
+var result2:word;
+begin
+result2 := (a + b) mod 65536;
+sum := result2;
+end;
+
 procedure MainShifr();
-var D1,D2,d3,d4:string[16];
+var D1,D2,d3,d4,d2old:string[16];
     semiresult:string[64];
-    a,b,c,d,e,f,j,temp,temp2:integer;
+    a,b,c,d,e,f,j,temp,temp2:int64;
     i:integer;
 begin
 while Bitsstr<>'' do
@@ -279,90 +405,145 @@ while Bitsstr<>'' do
   delete(bitsstr,1,16);
   for i:=1 to 8 do
     begin
-    j:=1;
-    a:=perevod(d1) xor perevod(keys[i,j]);
-    if (a=65536) then a:=0;
-    a:=a mod 65537;
-    inc(j);
-    b:=perevod(d2)+perevod(keys[i,j]);
-    b:=b mod 65536;
-    inc(j);
-    c:=perevod(d3)+perevod(keys[i,j]);
-    if (c=65536) then c:=0;
-    c:=c mod 65536;
-    inc(j);
-    d:=perevod(d4) xor perevod (keys[i,j]);
-    d:=d mod 65537;
-    inc(j);
-    e:=pobitXor(a,c);
-    f:=pobitXor(b,d);
-    if e=0 then e:=65536;
-    if perevod(keys[i,5])=0 then keys[i,5]:='10000000000000000000000000';
-    if perevod(keys[i,6])=0 then keys[i,6]:='10000000000000000000000000';
-    temp:=e xor perevod(keys[i,5]);
-    temp:=temp mod 65537;
-    temp:=temp+f;
-    if temp=0 then temp:=65536;
-    temp:=temp xor perevod(keys[i,6]);
-    temp:=temp mod 65537;
-    temp2:=e xor perevod(keys[i,5]);
-    temp2:=temp2 mod 65537;
-    temp2:=temp2+temp;
-    temp2:=temp mod 65536;
-    d1:=outresult(pobitXor(a,temp));
-    d2:=outresult(pobitXor(c,temp));
-    d3:=outresult(pobitXor(b,temp2));
-    d4:=outresult(pobitXor(d,temp2));
+a := mul(perevod(d1),perevod(keys[i,1]));
+b := sum(perevod(d2),perevod(keys[i,2]));
+c := sum(perevod(d3),perevod(keys[i,3]));
+d := mul(perevod(d4),perevod(keys[i,4]));
+e := a xor c;
+f := b xor d;
+d1 := outresult(a xor (mul(sum(f,mul(e,perevod(keys[i,5]))),perevod(keys[i,6]))));
+d2 := outresult(c xor (mul(sum(f,mul(e,perevod(keys[i,5]))),perevod(keys[i,6]))));
+d3 := outresult(b xor sum(mul(e,perevod(keys[i,5])),mul(sum(mul(e,perevod(keys[i,5])),f),perevod(keys[i,6]))));
+d4 := outresult(d xor sum(mul(e,perevod(keys[i,5])),mul(sum(mul(e,perevod(keys[i,5])),f),perevod(keys[i,6]))));
     end;
-  temp:=perevod(d1) xor perevod(keys[9,1]);
-  temp:=temp mod 65537;
-  if temp=65537 then temp:=0;
-  d1:=outresult(temp);
-
-  temp:=perevod(d4) xor perevod(keys[9,4]);
-  temp:=temp mod 65537;
-  if temp=65537 then temp:=0;
-  d4:=outresult(temp);
-
-  temp:=perevod(d3)+perevod(keys[9,2]);
-  temp:=temp mod 65536;
-  d2:=outresult(temp);
-
-  temp:=perevod(d2)+perevod(keys[9,3]);
-  temp:=temp mod 65536;
-  d3:=outresult(temp);
+  d1 := outresult(mul(perevod(d1),perevod(keys[9,1])));
+  d2old:=d2;
+  d2 := outresult(sum(perevod(d3),perevod(keys[9,2])));
+  d3 := outresult(sum(perevod(d2old),perevod(keys[9,3])));
+  d4 := outresult(mul(perevod(d4),perevod(keys[9,4])));
   semiresult:=d1+d2+d3+d4;
   outputresult:=outputresult+perevodintochar(semiresult);
   end;
+  if not(flag) then delete(semiresult,length(semiresult)-AddedBits+1,AddedBits);
+  if (flag) then outputresult:=outputresult+'added'+inttostr(addedbits);
 end;
 
 procedure outmemo();
 var f:textfile;
 begin
-fname:=fname+'cip';
+fname:=fname+'.cip';
     assignfile(f,FName);
     rewrite(f);
     writeln(f,outputresult);
+    closefile(f);
+    assignfile(f,FName);
+    reset(f);
+    with MainForm.lastfilememo do
+         Lines.LoadFromFile(FName);
     closefile(f);
 end;
 
 procedure Encryption();
 begin
+flag:=true;
 Key:=MainForm.keyedit.text;
 TransformateKey(key);
 GetAllKeys(KeyBits);
-getbitsstr();
+getbitsstr2();
 CheckAddedBits();
 mainshifr();
 outmemo();
 end;
 
-procedure decryption();
+function AdditiveInversion(key:string):string;
+var i,k,semiresult:integer;
+    temp:string;
 begin
+  k:=1;
+  temp:='';
+  semiresult:=0;
+  result:='';
+  for i:=length(key) downto 1 do
+    begin
+    semiresult:=semiresult+strtoint(key[i])*k;
+    end;
+  semiresult:=65536-semiresult;
+  while semiresult>0 do
+    begin
+    temp:=temp+inttostr(semiresult mod 2);
+    semiresult:=semiresult div 2;
+    end;
+  while Length(temp)<=16 do
+    temp:=temp+'0';
+  for i:=length(temp) downto 1 do
+    result:=result+temp[i];
+end;
+
+function multiplecInversion(key:string):string;
+var i,k,semiresult:integer;
+    temp:string;
+begin
+  k:=1;
+  temp:='';
+  semiresult:=0;
+  result:='';
+  for i:=length(key) downto 1 do
+    begin
+    semiresult:=semiresult+strtoint(key[i])*k;
+    end;
+  for i:=1 to semiresult do
+    begin
+    if ((i*semiresult) mod 65367=1) then break;
+    end;
+  semiresult:=i;
+  while semiresult>0 do
+    begin
+    temp:=temp+inttostr(semiresult mod 2);
+    semiresult:=semiresult div 2;
+    end;
+  while Length(temp)<=16 do
+    temp:=temp+'0';
+  for i:=length(temp) downto 1 do
+    result:=result+temp[i];
+end;
+
+procedure changekeys();
+var i:integer;
+begin
+ for i:=1 to 9 do
+  begin
+  additiveInversion(keys[i,2]);
+  additiveInversion(keys[i,3]);
+  multiplecInversion(keys[i,4]);
+  multiplecInversion(keys[i,1]);
+  end;
+end;
+
+function getAdded():integer;
+var d:integer;
+    temp:string;
+begin
+  result:=0;
+  d:=pos('added',str);
+  if d<>0 then begin
+  temp:=copy(str,d+6,length(str)-(d+6));
+  delete(str,d,length(str)-d);
+  result:=strtoint(temp);
+  end
+  else result:=0;
+end;
+
+procedure decrypt();
+begin
+flag:=false;
+AddedBits:=getadded;
 Key:=MainForm.keyedit.text;
 TransformateKey(key);
 GetAllKeys(KeyBits);
+getbitsstr2();
+changeKeys();
 mainshifr();
+outmemo();
 end;
 
 procedure TMainForm.EncryptClick(Sender: TObject);
@@ -391,8 +572,8 @@ procedure TMainForm.DecryptionClick(Sender: TObject);
 begin
 if (str<>'') then
   if length(keyedit.Text)=32 then
-    begin
-
+    Begin
+    decrypt;
     end
     else showmessage('Введите ключ длиной 32 символа')
   else showmessage('Выберите файл для работы');

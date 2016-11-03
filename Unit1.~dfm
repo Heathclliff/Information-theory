@@ -118,7 +118,7 @@ object MainForm: TMainForm
     Left = 64
   end
   object MainMenu: TMainMenu
-    object N1: TMenuItem
+    object options: TMenuItem
       Caption = #1044#1077#1081#1089#1090#1074#1080#1103' '#1089' '#1092#1072#1081#1083#1086#1084
       object open: TMenuItem
         Caption = #1054#1090#1082#1088#1099#1090#1100
