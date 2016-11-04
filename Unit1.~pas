@@ -393,6 +393,7 @@ var D1,D2,d3,d4,d2old:string[16];
     a,b,c,d,e,f,j,temp,temp2:int64;
     i:integer;
 begin
+outputresult:='';
 while Bitsstr<>'' do
   begin
   d1:=copy(bitsstr,1,16);
@@ -434,7 +435,7 @@ begin
 fname:=fname+'.cip';
     assignfile(f,FName);
     rewrite(f);
-    writeln(f,outputresult);
+    write(f,outputresult);
     closefile(f);
     assignfile(f,FName);
     reset(f);
@@ -526,7 +527,7 @@ begin
   result:=0;
   d:=pos('added',str);
   if d<>0 then begin
-  temp:=copy(str,d+6,length(str)-(d+6));
+  temp:=copy(str,d+5,length(str)-(d+4));
   delete(str,d,length(str)-d);
   result:=strtoint(temp);
   end

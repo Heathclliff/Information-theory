@@ -118,6 +118,7 @@ procedure getBitsStr2();
       b:byte;
       strbit:string;
       j:integer;
+      size:integer;
 begin
 assignfile(f,FName);
 reset(f);
@@ -136,7 +137,14 @@ while not(eof(f)) do
             Bitsstr:=Bitsstr+strbit[j];
         end;
 closefile(f);
-showmessage(inttostr(length(bitsstr)));
+if not(flag) then
+begin
+size:=5*8+AddedBits;
+if addedbits>9 then size:=size+16;
+if addedbits<10 then size:=size+8;
+delete(BitsStr,length(bitsstr)-size+1,size);
+showmessage(inttostr(length(BitsStr) div 8));
+end;
 end;
 
 procedure TMainForm.openClick(Sender: TObject);
@@ -390,9 +398,10 @@ end;
 procedure MainShifr();
 var D1,D2,d3,d4,d2old:string[16];
     semiresult:string[64];
-    a,b,c,d,e,f,j,temp,temp2:int64;
+    a,b,c,d,e,f,j,temp,temp2,k:int64;
     i:integer;
 begin
+outputresult:='';
 while Bitsstr<>'' do
   begin
   d1:=copy(bitsstr,1,16);
@@ -424,17 +433,19 @@ d4 := outresult(d xor sum(mul(e,perevod(keys[i,5])),mul(sum(mul(e,perevod(keys[i
   semiresult:=d1+d2+d3+d4;
   outputresult:=outputresult+perevodintochar(semiresult);
   end;
-  if not(flag) then delete(semiresult,length(semiresult)-AddedBits+1,AddedBits);
+ // AddedBits:=addeDbits div 8;
+  if not(flag) then delete(outputresult,length(semiresult)-AddedBits+1,AddedBits);
   if (flag) then outputresult:=outputresult+'added'+inttostr(addedbits);
 end;
 
 procedure outmemo();
 var f:textfile;
+    i:integer;
 begin
 fname:=fname+'.cip';
     assignfile(f,FName);
     rewrite(f);
-    writeln(f,outputresult);
+    write(f,outputresult);
     closefile(f);
     assignfile(f,FName);
     reset(f);
@@ -526,7 +537,7 @@ begin
   result:=0;
   d:=pos('added',str);
   if d<>0 then begin
-  temp:=copy(str,d+6,length(str)-(d+6));
+  temp:=copy(str,d+5,length(str)-(d+4));
   delete(str,d,length(str)-d);
   result:=strtoint(temp);
   end
